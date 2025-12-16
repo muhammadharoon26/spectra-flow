@@ -4,11 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids; // Import UUID trait
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Str;
 
 class ScrapingJob extends Model
 {
-    use HasFactory, HasUuids; // Enable UUIDs
+    use HasFactory, HasUuids;
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     */
+    public $incrementing = false;
+
+    /**
+     * The data type of the primary key ID.
+     */
+    protected $keyType = 'string';
+
+    /**
+     * Generate a new UUID v4 for the model.
+     * Override default UUID v7 for PostgreSQL compatibility.
+     */
+    public function newUniqueId(): string
+    {
+        return (string) Str::uuid();
+    }
 
     // Allow mass assignment for these fields
     protected $fillable = [

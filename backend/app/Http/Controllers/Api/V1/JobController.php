@@ -20,9 +20,8 @@ class JobController extends Controller
         ]);
 
         // Create the Database Record (Pending State)
-        // We use a UUID manually here so we can return it immediately
+        // HasUuids trait automatically generates the UUID
         $job = ScrapingJob::create([
-            'id' => Str::uuid(),
             'user_id' => 1, // Hardcoded for now (Auth comes later)
             'target_url' => $validated['url'],
             'scraper_type' => $validated['type'] ?? 'generic',
