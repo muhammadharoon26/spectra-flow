@@ -1,0 +1,41 @@
+
+# Laravel (Backend)
+backend/vendor
+backend/node_modules
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+backend/storage/app/public
+backend/storage/app/livewire-tmp
+backend/storage/debugbar
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+!backend/storage/app/public/.gitignore
+!backend/storage/app/livewire-tmp/.gitignore
+!backend/storage/framework/cache/data/.gitignore
+!backend/storage/framework/sessions/.gitignore
+!backend/storage/framework/testing/.gitignore
+!backend/storage/framework/views/.gitignore
+!backend/storage/logs/.gitignore
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/.phpunit.result.cache
+backend/npm-debug.log
+backend/yarn-error.log
+
+# Python (Scraper)
+scraper/__pycache__/
+scraper/*.py[cod]
+scraper/*$py.class
+scraper/venv/
+scraper/.env
+
+# General
+.env
+.DS_Store
+.idea
+.vscode
