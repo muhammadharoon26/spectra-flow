@@ -53,4 +53,11 @@ class JobController extends Controller
             'completed_at' => $job->completed_at
         ]);
     }
+
+    // Add this method to the class
+    public function index()
+    {
+        // Return latest 20 jobs
+        return \App\Models\ScrapingJob::latest()->limit(20)->get();
+    }
 }

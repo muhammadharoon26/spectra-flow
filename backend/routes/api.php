@@ -18,4 +18,5 @@ Route::prefix('v1')->group(function () {
     // GET /api/v1/jobs/{id} -> Check job status & get results
     Route::get('/jobs/{id}', [JobController::class, 'show']);
 
+    Route::get('/jobs/latest', [\App\Http\Controllers\Api\V1\JobController::class, 'index']);
 });

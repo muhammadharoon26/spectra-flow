@@ -27,6 +27,9 @@ backend/.phpunit.result.cache
 backend/npm-debug.log
 backend/yarn-error.log
 
+# Frontend
+frontend/node_modules
+
 # Python (Scraper)
 scraper/__pycache__/
 scraper/*.py[cod]

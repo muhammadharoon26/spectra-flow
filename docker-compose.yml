@@ -52,7 +52,20 @@ services:
     depends_on:
       - app
 
-  # Service 4: The Database (PostgreSQL)
+  # Service 4: Frontend
+  frontend:
+    image: node:20-alpine
+    container_name: spectraflow_frontend
+    working_dir: /app
+    command: npm run dev -- --host
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    networks:
+      - spectra-network
+
+  # Service 5: The Database (PostgreSQL)
   db:
     image: postgres:15-alpine
     container_name: spectraflow_db
@@ -68,7 +81,7 @@ services:
     networks:
       - spectra-network
 
-  # Service 5: Cache & Queue Driver (Redis)
+  # Service 6: Cache & Queue Driver (Redis)
   redis:
     image: redis:alpine
     container_name: spectraflow_redis
