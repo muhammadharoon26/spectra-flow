@@ -1,105 +1,126 @@
-# SpectraFlow
+# 🚀 SpectraFlow: Distributed Scraping Engine
 
-SpectraFlow is a robust, containerized scraping engine extending **Laravel** with a specialized **Python** service. It leverages **Docker** for orchestration, **Redis** for asynchronous job queues, and **PostgreSQL** for scalable data storage.
+**Tagline:** A hybrid PHP-Python asynchronous data extraction platform.
 
-## 🚀 Key Features
+## 1. Project Concept
 
-- **Hybrid Architecture**: Laravel API (Backend) + Python Scraper (Worker).
-- **Asynchronous Processing**: Jobs are dispatched via Redis queues and processed in the background.
-- **Dockerized**: Fully containerized environment for consistent development and deployment.
-- **Scalable**: Built on Postgres and Redis for handling high volumes of data and jobs.
+**SpectraFlow** is a microservices-style application that allows users to submit URLs for scraping via a REST API. Instead of making the user wait, the system processes these requests asynchronously using a background queue worker.
 
-## 📂 Project Structure
+- **The "Brain":** Laravel (PHP) handles the API, authentication, and job orchestration.
+- **The "Muscle":** Python scripts execute inside a custom isolated runtime to perform the actual scraping.
+- **The "Face":** A React Dashboard visualizes job status in real-time.
 
-SpectraFlow follows a **Monorepo** structure:
+---
 
-```
-SpectraFlow/
-├── backend/             # Laravel Application (API, Models, Jobs)
-│   ├── app/
-│   ├── routes/
-│   └── ...
-├── scraper/             # Python Scraper Service
-│   ├── main_scraper.py  # Entry point
-│   ├── requirements.txt # Python dependencies
-│   └── venv/            # Virtual Environment (Auto-managed)
-├── docker/              # Infrastructure Configuration
-│   ├── nginx/
-│   └── php/
-└── docker-compose.yml   # Orchestration Config
-```
+## 2. System Architecture
 
-## 🛠️ Tech Stack
+The system follows an **Event-Driven Architecture**:
 
-- **Backend Framework**: Laravel 10+ (PHP 8.2)
-- **Scraping Engine**: Python 3 (BeautifulSoup4, Requests)
-- **Database**: PostgreSQL 15
-- **Queue/Cache**: Redis
-- **Web Server**: Nginx
+1.  **Client/Frontend:** User submits a URL via the React Dashboard.
+2.  **API Gateway (Laravel):** Validates the request, creates a "Pending" Job ID, and pushes the task to **Redis**. Returns `202 Accepted` immediately.
+3.  **Queue Worker (Docker):** A dedicated background process picks up the job.
+4.  **Hybrid Runtime:** The worker executes a **Python script** via the shell, passing the target URL.
+5.  **Data Persistence:** Python returns JSON data; Laravel captures it and saves it to a **PostgreSQL JSONB** column.
+6.  **Real-Time Update:** The Dashboard polls the API to update the status from _Processing_ → _Completed_.
 
-## 🏁 Getting Started
+---
 
-### Prerequisites
+## 3. Technical Stack (Resume Keywords)
 
-- [Docker & Docker Compose](https://www.docker.com/products/docker-desktop) installed.
+| Component        | Technology                    | Why it was chosen                                                          |
+| :--------------- | :---------------------------- | :------------------------------------------------------------------------- |
+| **Backend API**  | **Laravel 11** (PHP 8.2)      | Robust routing, Eloquent ORM, and Queue management.                        |
+| **Scraper Core** | **Python 3** (BeautifulSoup4) | Best-in-class libraries for parsing HTML and data extraction.              |
+| **Frontend**     | **React 18** + **Tailwind**   | Modern, responsive UI with fast build times (Vite) & Glassmorphism design. |
+| **Database**     | **PostgreSQL 15**             | Native support for **JSONB** (perfect for unstructured scraped data).      |
+| **Queue/Cache**  | **Redis**                     | High-performance in-memory messaging for async jobs.                       |
+| **DevOps**       | **Docker** & **Compose**      | Complete containerization with custom hybrid runtimes.                     |
 
-### Installation
+---
 
-1. **Clone the Repository**
+## 4. Key Engineering Features
 
-   ```bash
-   git clone <repository_url>
-   cd SpectraFlow
-   ```
+- **Hybrid Runtime Container:** Engineered a custom `Dockerfile` that layers Python 3 on top of PHP-FPM, allowing seamless interoperability.
+- **Asynchronous Processing:** Long-running scraping tasks do not block the web server, ensuring a responsive API.
+- **Polyglot Persistence:** Utilizes Relational columns for Users/Jobs (UUIDs) and NoSQL (JSONB) columns for flexible payload storage.
+- **Secure Authentication:** Full user registration/login flow powered by **Laravel Sanctum**.
+- **Premium UI/UX:** Animated React components with Framer Motion, deep dark mode, and glassmorphism cards.
 
-2. **Environment Setup**
-   Copy the example environment file for the backend:
+---
 
-   ```bash
-   cp backend/.env.example backend/.env
-   # Or create one manually if it doesn't exist
-   ```
+## 5. Final Directory Structure
 
-3. **Build & Start Containers**
-   This command builds the images (installing PHP & Python dependencies) and starts the services.
-
-   ```bash
-   docker-compose up -d --build
-   ```
-
-4. **Run Migrations**
-   Set up the database schema.
-   ```bash
-   docker-compose exec app php artisan migrate
-   ```
-
-## 🏃 Usage
-
-### 1. Check Service Status
-
-**GET** `http://localhost:8000/api/v1/status`
-_(Note: Ensure you have a route defined for this in `backend/routes/api.php`)_
-
-### 2. Dispatch a Scrape Job
-
-**POST** `http://localhost:8000/api/v1/jobs`
-
-```json
-{
-  "url": "https://example.com",
-  "type": "generic"
-}
+```text
+spectra-flow/
+├── backend/                 # Laravel API (The Brain)
+│   ├── app/Jobs/            # ProcessScrapeJob.php (The Bridge to Python)
+│   ├── app/Http/            # Controllers (JobController, AuthController)
+│   └── database/            # Migrations (Postgres Schema)
+├── frontend/                # React Dashboard (The Face)
+│   ├── src/
+│   │   ├── components/      # Reusable UI (GlassCard, NeonButton)
+│   │   ├── pages/           # Auth & Dashboard Views
+│   │   └── context/         # Auth State Management
+│   └── vite.config.js       # Build Config
+├── scraper/                 # Python Scripts (The Muscle)
+│   ├── main_scraper.py      # The Logic
+│   └── requirements.txt     # Python Dependencies
+├── docker/                  # Infrastructure as Code
+│   ├── php/                 # Custom Hybrid Dockerfile
+│   └── nginx/               # Web Server Config
+├── docker-compose.yml       # Orchestrator
+└── start-dev.ps1            # Developer Startup Script
 ```
 
-### 3. Check Job Status
+---
 
-**GET** `http://localhost:8000/api/v1/jobs/{job_id}`
+## 6. How to Run (Cheat Sheet)
 
-## 🔧 Commands
+### Quick Start (PowerShell)
 
-- **Access App Container**: `docker-compose exec app bash`
-- **View Logs**: `docker-compose logs -f`
-- **Process Queues (Manual)**: The `queue` service runs this automatically, but you can inspect it via:
-  ```bash
-  docker-compose logs -f queue
-  ```
+We have provided a unified script to start the entire stack:
+
+```powershell
+./start-dev.ps1
+```
+
+### Manual Startup
+
+**1. Start the Backend Infrastructure:**
+
+```powershell
+docker-compose up -d
+```
+
+**2. Start the Frontend Dev Server:**
+
+```powershell
+cd frontend
+npm run dev
+```
+
+### Access Points
+
+- **Dashboard:** [http://localhost:5173](http://localhost:5173)
+- **API Endpoint:** `POST http://localhost:8000/api/v1/jobs`
+- **Database:** `localhost:5433` (User: `root`, Pass: `password`)
+
+---
+
+## 7. Developer Notes
+
+### Checking Background Jobs
+
+To see the scraper in action, view the queue logs:
+
+```powershell
+docker-compose logs -f queue
+```
+
+### Database Management
+
+Connect via TablePlus/DBeaver or use CLI:
+
+```powershell
+docker-compose exec db psql -U root -d spectraflow
+```

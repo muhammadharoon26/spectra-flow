@@ -22,7 +22,7 @@ class JobController extends Controller
         // Create the Database Record (Pending State)
         // HasUuids trait automatically generates the UUID
         $job = ScrapingJob::create([
-            'user_id' => 1, // Hardcoded for now (Auth comes later)
+            'user_id' => $request->user()->id, // Use authenticated user
             'target_url' => $validated['url'],
             'scraper_type' => $validated['type'] ?? 'generic',
             'status' => 'pending'
@@ -55,9 +55,12 @@ class JobController extends Controller
     }
 
     // Add this method to the class
-    public function index()
+    // 3. List User Jobs
+    public function index(Request $request)
     {
-        // Return latest 20 jobs
-        return \App\Models\ScrapingJob::latest()->limit(20)->get();
+        return ScrapingJob::where('user_id', $request->user()->id ?? 1)
+            ->latest()
+            ->limit(20)
+            ->get();
     }
 }
